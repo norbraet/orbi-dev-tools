@@ -1,0 +1,14 @@
+commit-msg:
+  commands:
+    conventional:
+      run: pnpm exec orbi-dev-tools validate-commit-message "{1}"
+
+pre-commit:
+  commands:
+    forbidden-branches:
+      run: pnpm exec orbi-dev-tools forbid-protected-branch --operation commit
+
+pre-push:
+  commands:
+    forbidden-branches:
+      run: pnpm exec orbi-dev-tools forbid-protected-branch --operation push

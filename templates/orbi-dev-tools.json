@@ -1,0 +1,11 @@
+{
+  "branches": {
+    "integration": "develop",
+    "release": "main",
+    "protected": ["main", "master", "develop"]
+  },
+  "pullRequests": {
+    "template": ".github/PULL_REQUEST_TEMPLATE.md",
+    "requireIssueBranchPrefix": true
+  }
+}

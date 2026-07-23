@@ -1,0 +1,22 @@
+min_version = "2026.7.0"
+
+[tools]
+node = "24.11.0"
+pnpm = "10.15.1"
+lefthook = "2.1.10"
+
+[tasks.setup]
+description = "Install package dependencies and Git hooks"
+run = ["pnpm install", "lefthook install"]
+
+[tasks.test]
+description = "Run automated tests"
+run = "pnpm test"
+
+[tasks.check]
+description = "Run syntax and automated checks"
+run = "pnpm run check"
+
+[tasks."package:inspect"]
+description = "Inspect the npm package contents without publishing"
+run = "npm pack --dry-run"
