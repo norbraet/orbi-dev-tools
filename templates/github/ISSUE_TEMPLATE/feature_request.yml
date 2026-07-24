@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a user or product outcome.
+title: "feat: "
+labels: ["status: needs-triage", "type: feature", "priority: medium"]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem or opportunity }
+    validations: { required: true }
+  - type: textarea
+    id: outcome
+    attributes: { label: Intended outcome }
+    validations: { required: true }
+  - type: textarea
+    id: constraints
+    attributes: { label: Constraints and alternatives }

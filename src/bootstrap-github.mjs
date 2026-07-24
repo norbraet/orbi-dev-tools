@@ -1,14 +1,14 @@
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import { loadConfig } from './config.mjs';
-import { run } from './command.mjs';
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { loadConfig } from "./config.mjs";
+import { run } from "./command.mjs";
 
 const packageDirectory = dirname(fileURLToPath(import.meta.url));
-const script = resolve(packageDirectory, '../scripts/bootstrap-github.sh');
+const script = resolve(packageDirectory, "../scripts/bootstrap-github.sh");
 
 export async function bootstrapGitHub(arguments_) {
   const { config, root } = loadConfig();
-  run('bash', [script, ...arguments_], {
+  run("bash", [script, ...arguments_], {
     cwd: root,
     env: {
       ORBI_DEV_TOOLS_LABELS_FILE: config.github.labelsFile,

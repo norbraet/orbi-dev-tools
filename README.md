@@ -22,6 +22,18 @@ The package includes opt-in Lefthook and mise task snippets under
 [`templates/`](templates/). Merge them into the project's local files instead
 of replacing application-specific hooks and tasks.
 
+## GitHub baseline
+
+Run `orbi-dev-tools init-github` after setting `github.owner` and
+`github.repositoryName` in `.orbi-dev-tools.json`. It creates a complete,
+versioned `.github/` baseline without overwriting any existing file. Use
+`--force` only when you intentionally want to replace a generated file.
+
+The baseline includes issue forms, PR template, CODEOWNERS, Dependabot, label
+definitions, milestone and project definitions, labeler configuration, and CI,
+PR-title, release-please, labeler, and stale workflows. Add application- and
+language-specific checks, labels, and ownership paths locally afterwards.
+
 ## Commands
 
 ```sh

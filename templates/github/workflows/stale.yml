@@ -1,0 +1,25 @@
+name: Stale issue management
+
+on:
+  schedule:
+    - cron: "30 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          stale-issue-label: "status: needs-triage"
+          exempt-issue-labels: "priority: critical,status: blocked,status: in-progress"
+          stale-issue-message: "This issue has had no activity for 60 days. Please confirm that it is still relevant."
+          close-issue-message: "Closing after the stale review window. Reopen with updated context if needed."
+          days-before-pr-stale: 30
+          days-before-pr-close: 14

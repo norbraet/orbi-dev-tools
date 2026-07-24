@@ -1,0 +1,7 @@
+milestones:
+  - title: "M1 Foundation"
+    description: "Establish the product and technical baseline."
+  - title: "M2 First usable release"
+    description: "Deliver and validate the first end-to-end user outcome."
+  - title: "Future backlog (unordered)"
+    description: "Validated work beyond the currently planned delivery scope."

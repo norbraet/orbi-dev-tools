@@ -1,0 +1,11 @@
+title: { { PROJECT_NAME } }
+description: Product and engineering delivery tracking.
+readme: |
+  Track outcomes, keep work small enough to review, and attach observable acceptance criteria.
+fields:
+  delivery_status: [Inbox, Ready, In progress, In review, Done]
+  priority: [Critical, High, Medium, Low]
+  effort: [XS, S, M, L, XL]
+workflows:
+  - New issues and pull requests enter Inbox.
+  - Closed issues and merged pull requests move to Done.

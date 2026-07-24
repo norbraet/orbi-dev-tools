@@ -7,5 +7,10 @@
   "pullRequests": {
     "template": ".github/PULL_REQUEST_TEMPLATE.md",
     "requireIssueBranchPrefix": true
+  },
+  "github": {
+    "owner": "your-github-user-or-organization",
+    "repositoryName": "your-repository-name",
+    "projectName": "Your Project Delivery"
   }
 }

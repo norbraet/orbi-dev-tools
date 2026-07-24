@@ -1,0 +1,13 @@
+"type: docs":
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**", "**/*.md"]
+"area: devx-ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          [
+            ".github/**",
+            "mise.toml",
+            "lefthook.yml",
+            "package.json",
+            "pnpm-lock.yaml",
+          ]

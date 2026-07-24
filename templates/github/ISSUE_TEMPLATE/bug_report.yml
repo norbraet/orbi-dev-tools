@@ -1,0 +1,20 @@
+name: Bug report
+description: Report behavior that differs from the intended result.
+title: "fix: "
+labels: ["status: needs-triage", "type: bug", "priority: medium"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for documenting a reproducible problem."
+  - type: textarea
+    id: expected
+    attributes: { label: Expected behavior }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: Actual behavior }
+    validations: { required: true }
+  - type: textarea
+    id: reproduction
+    attributes: { label: Reproduction steps }
+    validations: { required: true }
