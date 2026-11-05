@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadConfig } from "./config.mjs";
 import {
@@ -54,9 +55,10 @@ export async function createPullRequest(arguments_) {
       issueNumber ? `Closes #${issueNumber}` : "",
     )
     .replace("<!-- COMMIT_LIST -->", commits);
-  const bodyFile = join(root, ".orbi-dev-tools-pr-body.md");
-  writeFileSync(bodyFile, body);
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), "orbi-dev-tools-pr-"));
+  const bodyFile = join(temporaryDirectory, "body.md");
   try {
+    writeFileSync(bodyFile, body);
     const forwarded = arguments_.filter(
       (value, index) =>
         value !== "--base" && arguments_[index - 1] !== "--base",
@@ -77,6 +79,6 @@ export async function createPullRequest(arguments_) {
       { cwd: root },
     );
   } finally {
-    if (existsSync(bodyFile)) unlinkSync(bodyFile);
+    rmSync(temporaryDirectory, { recursive: true, force: true });
   }
 }

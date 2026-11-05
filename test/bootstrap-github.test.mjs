@@ -38,6 +38,15 @@ gh() {
       else printf 'develop\\n'; fi ;;
     'project create') printf '1\\n' ;;
     'project view') printf 'project-id\\n' ;;
+    'project list')
+      if [[ "$ORBI_TEST_MODE" == existing ]]; then printf '4\\n'; fi ;;
+    'project field-list')
+      if [[ "$ORBI_TEST_MODE" == existing ]]; then printf 'Existing field\\n'; fi ;;
+    'api --paginate')
+      if [[ "$ORBI_TEST_MODE" == existing ]]; then
+        if [[ "$*" == *milestones* ]]; then printf '7\\n';
+        elif [[ "$*" == *rulesets* ]]; then printf '8\\n'; fi
+      fi ;;
   esac
   return 0
 }
@@ -45,16 +54,19 @@ export -f node gh
 bash "$@"
 `;
 
-for (const mode of ["apply", "dry-run", "invalid", "custom-checks", "invalid-checks"]) {
+for (const mode of ["apply", "dry-run", "invalid", "custom-checks", "invalid-checks", "existing"]) {
   test(`bootstrap: ${mode} with mocked GitHub CLI`, { skip: !bashAvailable }, (t) => {
     const directory = mkdtempSync(join(tmpdir(), "orbi bootstrap-"));
     t.after(() => rmSync(directory, { recursive: true, force: true }));
     const labels = join(directory, "labels.yml");
     writeFileSync(labels, mode === "invalid" ? "labels: [{}]\n" : readFileSync(template, "utf8"));
     const milestones = join(directory, "milestones.yml");
-    writeFileSync(milestones, "milestones: []\n");
+    const milestoneTemplate = readFileSync(new URL("../templates/github/milestones.yml", import.meta.url), "utf8");
+    writeFileSync(milestones, milestoneTemplate.replace(/\r?\n/g, "\r\n"));
     const project = join(directory, "project.yml");
-    writeFileSync(project, "title: Example Delivery\ndescription: Example\nreadme: |\n  Example\nfields:\nworkflows:\n");
+    const projectTemplate = readFileSync(new URL("../templates/github/project.yml", import.meta.url), "utf8")
+      .replace("{{PROJECT_NAME}}", "Example Delivery");
+    writeFileSync(project, projectTemplate.replace(/\r?\n/g, "\r\n"));
     const log = join(directory, "gh.log");
     const ruleset = join(directory, "ruleset.json");
     const customChecks = ['Build "production"', "Integration tests"];
@@ -75,6 +87,7 @@ syncBuiltinESMExports();
       env: {
         ...process.env,
         ORBI_TEST_NODE: process.execPath.replaceAll("\\", "/"),
+        ORBI_TEST_MODE: mode,
         ORBI_TEST_MOCK: pathToFileURL(mock).href,
         ORBI_TEST_LOG: log.replaceAll("\\", "/"),
         ORBI_TEST_RULESET: ruleset.replaceAll("\\", "/"),
@@ -106,6 +119,32 @@ syncBuiltinESMExports();
           statusRule.parameters.required_status_checks.map((check) => check.context),
           mode === "custom-checks" ? customChecks : workflowChecks,
         );
+        const milestoneCalls = calls.filter((line) => line.startsWith("api\t--method\t") && line.includes("/milestones"));
+        assert.equal(milestoneCalls.length, 3);
+        const milestoneDefinitions = parse(milestoneTemplate).milestones;
+        milestoneDefinitions.forEach(({ title, description }, index) => {
+          assert.ok(milestoneCalls[index].includes(`title=${title}\t`));
+          assert.ok(milestoneCalls[index].includes(`description=${description}\t`));
+          assert.ok(milestoneCalls[index].includes(mode === "existing" ? "PATCH\t" : "POST\t"));
+        });
+        assert.ok(calls.some((line) => line.startsWith("project\tlink\t")));
+        const metadata = calls.find((line) => line.startsWith("api\tgraphql\t"));
+        assert.ok(metadata.includes("title=Example Delivery\t"));
+        assert.ok(metadata.includes("shortDescription=Product and engineering delivery tracking.\t"));
+        assert.ok(metadata.includes("readme=Track outcomes, keep work small enough to review, and attach observable acceptance criteria."));
+        assert.ok(!metadata.includes("\r"));
+        const fieldCalls = calls.filter((line) => line.startsWith("project\tfield-create\t"));
+        if (mode === "existing") {
+          assert.deepEqual(fieldCalls, []);
+          assert.ok(!calls.some((line) => line.startsWith("project\tcreate\t")));
+          assert.ok(calls.some((line) => line.includes("PUT\trepos/example/repository/rulesets/8")));
+        } else {
+          assert.equal(fieldCalls.length, 3);
+          assert.ok(fieldCalls[0].includes("--name\tDelivery status\t"));
+          assert.ok(fieldCalls[0].includes("--single-select-options\tInbox,Ready,In progress,In review,Done"));
+          assert.ok(fieldCalls[1].includes("--name\tPriority\t"));
+          assert.ok(fieldCalls[2].includes("--name\tEffort\t"));
+        }
       } else {
         assert.deepEqual(labelCalls, []);
         assert.equal(result.stdout.split("[dry-run] gh label create ").length - 1, 13);

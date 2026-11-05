@@ -181,6 +181,7 @@ node "$labels_script" "$labels_file" "$repository" "${label_options[@]}"
 milestone_title=''
 previous_milestone_title=''
 while IFS= read -r line; do
+  line="${line%$'\r'}"
   if [[ "$line" =~ ^[[:space:]]*-[[:space:]]title:[[:space:]]\"(.*)\"$ ]]; then
     milestone_title="${BASH_REMATCH[1]}"
     continue
@@ -221,10 +222,11 @@ while IFS= read -r line; do
   fi
 done < "$milestones_file"
 
-project_title="$(sed -n 's/^title: //p' "$project_file" | head -n 1)"
-project_description="$(sed -n 's/^description: //p' "$project_file" | head -n 1)"
+project_yaml="$(sed 's/\r$//' "$project_file")"
+project_title="$(sed -n 's/^title: //p' <<<"$project_yaml" | head -n 1)"
+project_description="$(sed -n 's/^description: //p' <<<"$project_yaml" | head -n 1)"
 project_readme="$(
-  sed -n '/^readme: |$/,/^fields:$/p' "$project_file" |
+  sed -n '/^readme: |$/,/^fields:$/p' <<<"$project_yaml" |
     sed '1d;$d;s/^  //'
 )"
 
@@ -289,7 +291,7 @@ while IFS='|' read -r field_key options; do
     printf 'Project field already exists: %s\n' "$field_name"
   fi
 done < <(
-  sed -n '/^fields:$/,/^workflows:$/p' "$project_file" |
+  sed -n '/^fields:$/,/^workflows:$/p' <<<"$project_yaml" |
     sed -n 's/^  \([^:]*\): \[\(.*\)\]$/\1|\2/p' |
     sed 's/, /,/g'
 )

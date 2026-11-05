@@ -6,8 +6,8 @@ pnpm = "10.15.1"
 lefthook = "2.1.10"
 
 [tasks.setup]
-description = "Install package dependencies and Git hooks"
-run = ["pnpm install", "lefthook install"]
+description = "Install package dependencies"
+run = "pnpm install"
 
 [tasks.test]
 description = "Run automated tests"
@@ -20,3 +20,7 @@ run = "pnpm run check"
 [tasks."package:inspect"]
 description = "Inspect the npm package contents without publishing"
 run = "npm pack --dry-run"
+
+[tasks."package:smoke"]
+description = "Install the packed toolkit in a temporary consumer and verify it"
+run = "npm run test:package"
