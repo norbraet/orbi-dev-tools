@@ -55,6 +55,7 @@ script_directory="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 labels_script="$script_directory/sync-github-labels.mjs"
 # Validate every label before any GitHub write, including unrelated settings.
 node "$labels_script" "$labels_file" --validate
+required_status_checks="$(node "$script_directory/required-status-checks.mjs")"
 
 run() {
   if [[ "$is_dry_run" == true ]]; then
@@ -151,10 +152,7 @@ ruleset_payload="$(
       "type": "required_status_checks",
       "parameters": {
         "strict_required_status_checks_policy": true,
-        "required_status_checks": [
-          { "context": "Format, analyze, and test" },
-          { "context": "conventional-title" }
-        ]
+        "required_status_checks": $required_status_checks
       }
     }
   ]
@@ -165,6 +163,7 @@ JSON
 if [[ "$is_dry_run" == true ]]; then
   printf '[dry-run] sync ruleset %q for %q (existing id: %s)\n' \
     "$ruleset_name" "$repository" "${existing_ruleset_id:-none}"
+  printf '%s\n' "$ruleset_payload"
 elif [[ -n "$existing_ruleset_id" ]]; then
   gh api --method PUT "repos/$repository/rulesets/$existing_ruleset_id" --input - <<<"$ruleset_payload" >/dev/null
   printf 'Repository ruleset updated: %s\n' "$ruleset_name"

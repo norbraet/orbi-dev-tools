@@ -11,6 +11,7 @@
   "github": {
     "owner": "your-github-user-or-organization",
     "repositoryName": "your-repository-name",
-    "projectName": "Your Project Delivery"
+    "projectName": "Your Project Delivery",
+    "requiredStatusChecks": ["Quality checks", "conventional-title"]
   }
 }

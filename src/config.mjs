@@ -31,6 +31,7 @@ export const defaultConfig = Object.freeze({
     labelsFile: ".github/labels.yml",
     milestonesFile: ".github/milestones.yml",
     projectFile: ".github/project.yml",
+    requiredStatusChecks: ["Quality checks", "conventional-title"],
     owner: undefined,
     projectName: undefined,
     repositoryName: undefined,

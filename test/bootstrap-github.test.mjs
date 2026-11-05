@@ -5,6 +5,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
+import { parse } from "yaml";
+
+const workflowChecks = ["ci.yml", "pr-title.yml"].flatMap((file) => {
+  const workflow = parse(readFileSync(
+    new URL(`../templates/github/workflows/${file}`, import.meta.url), "utf8",
+  ));
+  return Object.entries(workflow.jobs).map(([id, job]) => job.name ?? id);
+});
 
 const bootstrap = fileURLToPath(new URL("../scripts/bootstrap-github.sh", import.meta.url));
 const template = fileURLToPath(new URL("../templates/github/labels.yml", import.meta.url));
@@ -21,6 +29,9 @@ node() { "$ORBI_TEST_NODE" --import "$ORBI_TEST_MOCK" "$@"; }
 gh() {
   printf '%s\\t' "$@" >> "$ORBI_TEST_LOG"
   printf '\\n' >> "$ORBI_TEST_LOG"
+  if [[ "$*" == *rulesets* && "$*" == *'--input -'* ]]; then
+    cat > "$ORBI_TEST_RULESET"
+  fi
   case "$1 $2" in
     'repo view')
       if [[ "$*" == *nameWithOwner* ]]; then printf 'example/repository\\n';
@@ -34,8 +45,8 @@ export -f node gh
 bash "$@"
 `;
 
-for (const mode of ["apply", "dry-run", "invalid"]) {
-  test(`bootstrap labels: ${mode} with mocked GitHub CLI`, { skip: !bashAvailable }, (t) => {
+for (const mode of ["apply", "dry-run", "invalid", "custom-checks", "invalid-checks"]) {
+  test(`bootstrap: ${mode} with mocked GitHub CLI`, { skip: !bashAvailable }, (t) => {
     const directory = mkdtempSync(join(tmpdir(), "orbi bootstrap-"));
     t.after(() => rmSync(directory, { recursive: true, force: true }));
     const labels = join(directory, "labels.yml");
@@ -45,6 +56,8 @@ for (const mode of ["apply", "dry-run", "invalid"]) {
     const project = join(directory, "project.yml");
     writeFileSync(project, "title: Example Delivery\ndescription: Example\nreadme: |\n  Example\nfields:\nworkflows:\n");
     const log = join(directory, "gh.log");
+    const ruleset = join(directory, "ruleset.json");
+    const customChecks = ['Build "production"', "Integration tests"];
     const mock = join(directory, "mock-gh.mjs");
     writeFileSync(mock, `
 import childProcess from "node:child_process";
@@ -64,27 +77,48 @@ syncBuiltinESMExports();
         ORBI_TEST_NODE: process.execPath.replaceAll("\\", "/"),
         ORBI_TEST_MOCK: pathToFileURL(mock).href,
         ORBI_TEST_LOG: log.replaceAll("\\", "/"),
+        ORBI_TEST_RULESET: ruleset.replaceAll("\\", "/"),
+        ...(mode === "custom-checks"
+          ? { ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS: JSON.stringify(customChecks) }
+          : mode === "invalid-checks"
+            ? { ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS: '[""]' }
+            : { ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS: JSON.stringify(workflowChecks) }),
         ORBI_DEV_TOOLS_LABELS_FILE: labels.replaceAll("\\", "/"),
         ORBI_DEV_TOOLS_MILESTONES_FILE: milestones.replaceAll("\\", "/"),
         ORBI_DEV_TOOLS_PROJECT_FILE: project.replaceAll("\\", "/"),
       },
     });
     const calls = existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [];
-    if (mode === "invalid") {
+    if (mode === "invalid" || mode === "invalid-checks") {
       assert.equal(result.status, 1, result.stderr);
-      assert.match(result.stderr, /labels\[0\]\.name/);
+      assert.match(result.stderr, mode === "invalid" ? /labels\[0\]\.name/ : /github.requiredStatusChecks/);
       assert.deepEqual(calls, []);
     } else {
       assert.equal(result.status, 0, result.stderr);
       const labelCalls = calls.filter((line) => line.startsWith("label\tcreate\t"));
-      if (mode === "apply") {
+      if (mode !== "dry-run") {
         assert.equal(labelCalls.length, 13);
         assert.ok(labelCalls[0].includes("status: needs-triage\t"));
         assert.ok(labelCalls[12].includes("area: devx-ci\t"));
+        const payload = JSON.parse(readFileSync(ruleset, "utf8"));
+        const statusRule = payload.rules.find((rule) => rule.type === "required_status_checks");
+        assert.deepEqual(
+          statusRule.parameters.required_status_checks.map((check) => check.context),
+          mode === "custom-checks" ? customChecks : workflowChecks,
+        );
       } else {
         assert.deepEqual(labelCalls, []);
         assert.equal(result.stdout.split("[dry-run] gh label create ").length - 1, 13);
         assert.ok(calls.every((line) => !line.includes("--method\t")));
+        assert.equal(existsSync(ruleset), false);
+        const payloadStart = result.stdout.indexOf('{\n  "name":');
+        const payloadEnd = result.stdout.indexOf("\n}\n", payloadStart) + 2;
+        const payload = JSON.parse(result.stdout.slice(payloadStart, payloadEnd));
+        const statusRule = payload.rules.find((rule) => rule.type === "required_status_checks");
+        assert.deepEqual(
+          statusRule.parameters.required_status_checks.map((check) => check.context),
+          workflowChecks,
+        );
       }
     }
   });

@@ -56,6 +56,25 @@ six-digit hexadecimal `color` (without `#`), and a string `description`.
 Use `labels: []` to skip labels intentionally. Invalid definitions stop bootstrap
 before any GitHub changes. Dry-run prints label commands without applying them.
 
+The default branch ruleset requires `Quality checks` and `conventional-title`,
+matching the generated CI and PR-title workflows. If you rename those jobs or
+add application checks, set `github.requiredStatusChecks` in
+`.orbi-dev-tools.json` to the complete list of required check names. This list
+replaces the defaults; use the job's `name`, or its job ID when no name is set.
+For example:
+
+```json
+{
+  "github": {
+    "requiredStatusChecks": ["Quality checks", "conventional-title", "Integration tests"]
+  }
+}
+```
+
+Inspect the ruleset JSON with `bootstrap-github --dry-run`, then run bootstrap
+without `--dry-run` to apply the updated requirements. When invoking the Bash
+script directly, pass the list as JSON in `ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS`.
+
 ## Development
 
 ```sh
