@@ -1,4 +1,4 @@
-title: { { PROJECT_NAME } }
+title: {{PROJECT_NAME}}
 description: Product and engineering delivery tracking.
 readme: |
   Track outcomes, keep work small enough to review, and attach observable acceptance criteria.

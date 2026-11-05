@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [{ { RELEASE_BRANCH } }, { { INTEGRATION_BRANCH } }]
+    branches: ["{{RELEASE_BRANCH}}", "{{INTEGRATION_BRANCH}}"]
 
 permissions:
   contents: read
