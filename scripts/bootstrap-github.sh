@@ -37,7 +37,7 @@ while (($# > 0)); do
   shift
 done
 
-for command in gh git sed; do
+for command in gh git sed node; do
   if ! command -v "$command" >/dev/null 2>&1; then
     printf 'Required command not found: %s\n' "$command" >&2
     exit 1
@@ -50,6 +50,11 @@ for file in "$labels_file" "$milestones_file" "$project_file"; do
     exit 1
   fi
 done
+
+script_directory="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+labels_script="$script_directory/sync-github-labels.mjs"
+# Validate every label before any GitHub write, including unrelated settings.
+node "$labels_script" "$labels_file" --validate
 
 run() {
   if [[ "$is_dry_run" == true ]]; then
@@ -168,16 +173,11 @@ else
   printf 'Repository ruleset created: %s\n' "$ruleset_name"
 fi
 
-while IFS='|' read -r name color description; do
-  [[ -z "$name" ]] && continue
-  run gh label create "$name" \
-    --repo "$repository" \
-    --color "$color" \
-    --description "$description" \
-    --force
-done < <(
-  sed -n 's/^  - { name: "\([^"]*\)", color: "\([^"]*\)", description: "\([^"]*\)" }$/\1|\2|\3/p' "$labels_file"
-)
+label_options=()
+if [[ "$is_dry_run" == true ]]; then
+  label_options+=(--dry-run)
+fi
+node "$labels_script" "$labels_file" "$repository" "${label_options[@]}"
 
 milestone_title=''
 previous_milestone_title=''

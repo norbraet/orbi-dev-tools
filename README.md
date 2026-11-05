@@ -48,6 +48,14 @@ orbi-dev-tools bootstrap-github --dry-run
 Project, default workflow permissions, integration branch, and branch ruleset.
 Use `--dry-run` to inspect its proposed changes before applying them.
 
+Bootstrap requires Node.js, Bash, Git, and an authenticated GitHub CLI (`gh`).
+Labels are parsed with the package's runtime `yaml` dependency, so multiline,
+inline, and block YAML mappings are supported. The configured labels file must
+contain a `labels` array; each entry needs a nonempty string `name`, a quoted
+six-digit hexadecimal `color` (without `#`), and a string `description`.
+Use `labels: []` to skip labels intentionally. Invalid definitions stop bootstrap
+before any GitHub changes. Dry-run prints label commands without applying them.
+
 ## Development
 
 ```sh
