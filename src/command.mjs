@@ -21,7 +21,7 @@ export function run(
     throw new Error(`Cannot run ${command}: ${result.error.message}`);
   if (result.status !== 0)
     throw new Error(`${command} exited with status ${result.status}`);
-  return result.stdout.trim();
+  return capture ? result.stdout.trim() : "";
 }
 
 function shellQuote(value) {
