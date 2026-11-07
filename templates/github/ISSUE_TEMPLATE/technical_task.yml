@@ -1,0 +1,19 @@
+name: Technical task
+description: Track engineering, tooling, or architectural work.
+title: "chore: "
+labels: ["status: needs-triage", "type: technical", "priority: medium"]
+body:
+  - type: textarea
+    id: description
+    attributes: { label: Description }
+    validations: { required: true }
+  - type: textarea
+    id: solution
+    attributes: { label: Suggested solution }
+  - type: textarea
+    id: scope
+    attributes: { label: Scope / affected files }
+  - type: textarea
+    id: criteria
+    attributes: { label: Acceptance criteria }
+    validations: { required: true }

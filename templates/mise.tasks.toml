@@ -1,0 +1,14 @@
+# Merge these tasks into the consumer project's mise.toml. Keep the consumer's
+# own tool versions and application-specific tasks under local ownership.
+
+[tasks."github:bootstrap"]
+description = "Synchronize configured GitHub labels, milestones, project, and ruleset"
+run = "pnpm exec orbi-dev-tools bootstrap-github"
+
+[tasks."pr:create"]
+description = "Create a pull request from the current feature branch"
+run = "pnpm exec orbi-dev-tools create-pr"
+
+[tasks."release:promote"]
+description = "Open the configured integration-to-release promotion pull request"
+run = "pnpm exec orbi-dev-tools promote-release"

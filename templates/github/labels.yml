@@ -1,0 +1,66 @@
+labels:
+  - {
+      name: "status: needs-triage",
+      color: "D4C5F9",
+      description: "Awaiting initial review and classification",
+    }
+  - {
+      name: "status: ready",
+      color: "0E8A16",
+      description: "Clear, accepted, and ready to be picked up",
+    }
+  - {
+      name: "status: blocked",
+      color: "B60205",
+      description: "Cannot proceed until a dependency or decision is resolved",
+    }
+  - {
+      name: "status: in-progress",
+      color: "1D76DB",
+      description: "Actively being implemented",
+    }
+  - {
+      name: "type: bug",
+      color: "D73A4A",
+      description: "Something is not working as intended",
+    }
+  - {
+      name: "type: feature",
+      color: "A2EEEF",
+      description: "New or expanded behavior",
+    }
+  - {
+      name: "type: technical",
+      color: "5319E7",
+      description: "Engineering, architecture, or infrastructure work",
+    }
+  - {
+      name: "type: docs",
+      color: "0075CA",
+      description: "Documentation-only work",
+    }
+  - {
+      name: "priority: critical",
+      color: "B60205",
+      description: "Immediate action; security, data-loss, or release risk",
+    }
+  - {
+      name: "priority: high",
+      color: "D93F0B",
+      description: "Important and time-sensitive",
+    }
+  - {
+      name: "priority: medium",
+      color: "FBCA04",
+      description: "Normal planned priority",
+    }
+  - {
+      name: "priority: low",
+      color: "C2E0C6",
+      description: "Useful but safely deferrable",
+    }
+  - {
+      name: "area: devx-ci",
+      color: "2D333B",
+      description: "Developer experience, automation, build, or CI",
+    }

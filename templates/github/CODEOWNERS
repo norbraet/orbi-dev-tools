@@ -1,0 +1,4 @@
+# Update ownership rules for this repository as it grows.
+* @{{OWNER}}
+
+/.github/ @{{OWNER}}

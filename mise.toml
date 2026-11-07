@@ -1,0 +1,26 @@
+min_version = "2026.7.0"
+
+[tools]
+node = "24.11.0"
+pnpm = "10.15.1"
+lefthook = "2.1.10"
+
+[tasks.setup]
+description = "Install package dependencies"
+run = "pnpm install"
+
+[tasks.test]
+description = "Run automated tests"
+run = "pnpm test"
+
+[tasks.check]
+description = "Run syntax and automated checks"
+run = "pnpm run check"
+
+[tasks."package:inspect"]
+description = "Inspect the npm package contents without publishing"
+run = "npm pack --dry-run"
+
+[tasks."package:smoke"]
+description = "Install the packed toolkit in a temporary consumer and verify it"
+run = "npm run test:package"
