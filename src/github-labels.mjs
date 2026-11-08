@@ -28,7 +28,7 @@ export function readLabels(file) {
     }
     return document.labels;
   } catch (error) {
-    throw new Error(`Cannot read labels from ${file}: ${error.message}`);
+    throw new Error(`Cannot read labels from ${file}: ${error.message}`, { cause: error });
   }
 }
 

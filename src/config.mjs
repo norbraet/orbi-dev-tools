@@ -63,7 +63,7 @@ export function loadConfig(startDirectory = process.cwd()) {
           ),
         };
       } catch (error) {
-        throw new Error(`Cannot read ${file}: ${error.message}`);
+        throw new Error(`Cannot read ${file}: ${error.message}`, { cause: error });
       }
     }
     const parent = dirname(directory);
