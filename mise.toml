@@ -6,8 +6,8 @@ pnpm = "10.15.1"
 lefthook = "2.1.10"
 
 [tasks.setup]
-description = "Install package dependencies"
-run = "pnpm install"
+description = "Install package dependencies and local commit-message hook"
+run = ["pnpm install", "lefthook install"]
 
 [tasks.test]
 description = "Run automated tests"

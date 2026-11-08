@@ -1,13 +1,13 @@
 # Orbi Dev Tools
 
-Private, versioned repository automation for Orbi projects. It replaces copied
+Public, versioned repository automation for Orbi projects. It replaces copied
 project-management scripts with a small npm-compatible command-line tool.
 
 ## Install in a project
 
-The registry publishing pipeline is tracked separately in #7. Once version
-`0.1.0` is published to your chosen registry, authenticate with that registry
-and install an exact version with the project's package manager:
+The package is configured for public distribution on npmjs.com. After the first
+`0.1.0` release is published, install an exact version with your project's
+package manager. Public installation does not require an npm account or token:
 
 ```sh
 pnpm add --save-dev --save-exact @norbraet/orbi-dev-tools@0.1.0
@@ -181,11 +181,38 @@ mise run check
 npm run test:package
 ```
 
-`mise run setup` installs this toolkit's dependencies; the toolkit repository
-does not install consumer hooks. `npm run test:package` (also available as
+`mise run setup` installs this toolkit's dependencies and its local Lefthook
+commit-message validator. The root hook invokes `node bin/orbi-dev-tools.mjs`
+directly, so the toolkit does not depend on an installed copy of itself.
+Use a Conventional Commit such as `fix(7): validate release metadata`; the
+optional scope can hold the related issue number. This checks message format,
+while the author still chooses whether a change is a feature, fix, or breaking
+change. Local hooks can be bypassed, so CI also validates PR titles. Prefer a
+squash merge using the validated PR title as the commit subject so release-please
+sees the intended change on `main`.
+
+`npm run test:package` (also available as
 `mise run package:smoke`) packs the current source, installs the tarball in a
 temporary consumer, checks the installed executable and assets, generates the
 GitHub baseline, and exercises label dry-run with installed dependencies.
 It may download npm dependencies, performs no live GitHub operations, and
 removes its temporary consumer afterwards. Use npm to run this smoke check;
 the regular unit and mocked integration tests remain available via `pnpm test`.
+
+## Maintaining releases
+
+Toolkit CI validates Node.js 22 and 24 on Ubuntu and Windows, including syntax,
+unit/mocked integration tests, Bash syntax, and the clean-package smoke check.
+`npm publish` also runs checks and the package smoke check through
+`prepublishOnly`. The package uses an explicit file allowlist for runtime assets.
+
+Release-please proposes version and changelog changes in reviewable PRs. npm
+publication is a separate manual workflow that verifies the selected release
+tag and re-runs CI against its exact commit before publishing through OIDC.
+Both release automation and workflow publication start disabled until the
+documented account/repository configuration is complete.
+
+See [the release guide](https://github.com/norbraet/orbi-dev-tools/blob/main/docs/RELEASING.md)
+for the first manual release, trusted publisher setup, and subsequent releases.
+These workflows release this toolkit; the files under `templates/github/` are
+owned by consuming projects and have their own setup requirements.

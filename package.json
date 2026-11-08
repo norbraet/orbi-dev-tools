@@ -2,9 +2,27 @@
   "name": "@norbraet/orbi-dev-tools",
   "version": "0.1.0",
   "description": "Opinionated, reusable repository automation for my projects.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/norbraet/orbi-dev-tools.git"
+  },
+  "homepage": "https://github.com/norbraet/orbi-dev-tools#readme",
+  "bugs": {
+    "url": "https://github.com/norbraet/orbi-dev-tools/issues"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "bin/",
+    "src/",
+    "templates/",
+    "scripts/bootstrap-github.sh",
+    "scripts/sync-github-labels.mjs",
+    "scripts/required-status-checks.mjs"
+  ],
   "type": "module",
   "bin": {
-    "orbi-dev-tools": "./bin/orbi-dev-tools.mjs"
+    "orbi-dev-tools": "bin/orbi-dev-tools.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -12,10 +30,12 @@
   "scripts": {
     "test": "node --test",
     "test:package": "node scripts/smoke-package.mjs",
-    "check": "node --check bin/orbi-dev-tools.mjs && node --test"
+    "check": "node scripts/check-syntax.mjs && node --test",
+    "prepublishOnly": "npm run check && npm run test:package"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "packageManager": "pnpm@10.15.1",
   "dependencies": {

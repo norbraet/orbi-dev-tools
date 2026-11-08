@@ -1,6 +1,7 @@
 import { readLabels, synchronizeLabels } from "../src/github-labels.mjs";
 
 const [file, repository, ...options] = process.argv.slice(2);
+
 try {
   if (repository === "--validate") {
     readLabels(file);
