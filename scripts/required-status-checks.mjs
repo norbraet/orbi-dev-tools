@@ -1,9 +1,10 @@
 import { defaultConfig } from "../src/config.mjs";
 
 try {
-  const checks = process.env.ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS === undefined
-    ? defaultConfig.github.requiredStatusChecks
-    : JSON.parse(process.env.ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS);
+  const checks =
+    process.env.ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS === undefined
+      ? defaultConfig.github.requiredStatusChecks
+      : JSON.parse(process.env.ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS);
   if (
     !Array.isArray(checks) ||
     checks.some((check) => typeof check !== "string" || !check.trim()) ||

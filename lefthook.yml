@@ -1,0 +1,4 @@
+commit-msg:
+  commands:
+    conventional:
+      run: node bin/orbi-dev-tools.mjs validate-commit-message "{1}"
