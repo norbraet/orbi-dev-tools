@@ -14,8 +14,12 @@ description = "Run automated tests"
 run = "pnpm test"
 
 [tasks.check]
-description = "Run syntax and automated checks"
+description = "Run ESLint and automated tests"
 run = "pnpm run check"
+
+[tasks.lint]
+description = "Lint toolkit JavaScript with ESLint"
+run = "pnpm run lint"
 
 [tasks."package:inspect"]
 description = "Inspect the npm package contents without publishing"

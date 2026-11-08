@@ -173,13 +173,29 @@ script directly, pass the list as JSON in `ORBI_DEV_TOOLS_REQUIRED_STATUS_CHECKS
 
 ## Development
 
+Use the versions in `mise.toml`, or Node.js 22.13+ / 24 for development with
+ESLint 10. The published CLI still supports Node.js 22+; ESLint is a development
+dependency and is not installed when a project consumes this package.
+
 ```sh
 mise install
 mise run setup
+pnpm run lint
 pnpm test
 mise run check
 npm run test:package
 ```
+
+`pnpm run lint` (or `mise run lint`) uses ESLint's recommended JavaScript rules
+for Node ES modules in `bin/`, `src/`, `scripts/`, and `test/`, plus the ESLint
+configuration itself. It reports parse errors, undefined names, unused variables,
+and other suspicious patterns; it does not enforce formatting or declaration
+placement. Declarations may stay near the top of a function/block, but initializers
+that perform file reads or execute commands must run after their prerequisites.
+`pnpm run check` runs linting and tests, and is the same entry point used by mise
+and CI. npm's `prepublishOnly` invokes that check and the separate npm package
+smoke check before publication. ESLint replaces the former custom syntax-check
+script; tests and the package smoke check still verify actual behavior.
 
 `mise run setup` installs this toolkit's dependencies and its local Lefthook
 commit-message validator. The root hook invokes `node bin/orbi-dev-tools.mjs`
@@ -201,7 +217,7 @@ the regular unit and mocked integration tests remain available via `pnpm test`.
 
 ## Maintaining releases
 
-Toolkit CI validates Node.js 22 and 24 on Ubuntu and Windows, including syntax,
+Toolkit CI validates current Node.js 22 and 24 on Ubuntu and Windows, including ESLint,
 unit/mocked integration tests, Bash syntax, and the clean-package smoke check.
 `npm publish` also runs checks and the package smoke check through
 `prepublishOnly`. The package uses an explicit file allowlist for runtime assets.

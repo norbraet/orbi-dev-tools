@@ -9,8 +9,9 @@ This guide releases the toolkit itself; consumer release automation is separate.
 
 - **Toolkit CI** (`ci.yml`) validates PRs and pushes to `main`, with Node 22 and
   24 on Ubuntu and Windows. It installs with the frozen pnpm lockfile, checks all
-  JavaScript sources and Bash syntax, runs tests, and installs the packed package
-  in a temporary consumer. PR titles are checked as Conventional Commits.
+  JavaScript with ESLint and Bash syntax with `bash -n`, runs tests, and installs
+  the packed package in a temporary consumer. PR titles are checked as
+  Conventional Commits.
 - **Release proposal** (`release-please.yml`) manages a version/changelog PR and
   creates its tag/GitHub release after merge. It is disabled until the repository
   variable `RELEASE_AUTOMATION_ENABLED` is exactly `true`.
@@ -27,6 +28,11 @@ publish on ordinary merges or merely because a tag/release was created.
 
 `prepublishOnly` also runs checks and package verification for a normal local
 `npm publish`. Do not bypass it with `--ignore-scripts` when publishing.
+The check command includes ESLint and the unit/mocked integration tests. Linting
+uses development dependencies and needs Node 22.13+ or 24; the publishing workflow
+uses Node 24. ESLint and its configuration are not shipped as runtime tooling or
+installed as dependencies in consuming projects. The clean-consumer smoke check
+verifies that separation as well as the installed CLI's behavior.
 
 ## First release: manual account bootstrap
 

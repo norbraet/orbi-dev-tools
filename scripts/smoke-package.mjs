@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const npmCli = process.env.npm_execpath;
@@ -64,6 +65,7 @@ try {
   );
   const binary =
     process.platform === "win32" ? "orbi-dev-tools.cmd" : "orbi-dev-tools";
+  const consumerRequire = createRequire(join(consumer, "package.json"));
   let manifest;
   let output;
 
@@ -97,6 +99,8 @@ try {
     "test",
     ".github",
     "docs",
+    "eslint.config.mjs",
+    "scripts/check-syntax.mjs",
     "scripts/smoke-package.mjs",
     "scripts/verify-release.mjs",
   ]) {
@@ -106,6 +110,12 @@ try {
       `Unexpected packaged development file: ${excluded}`,
     );
   }
+
+  assert.throws(
+    () => consumerRequire.resolve("eslint"),
+    { code: "MODULE_NOT_FOUND" },
+    "ESLint must not be installed in the clean consumer",
+  );
 
   for (const asset of [
     "CHANGELOG.md",
